@@ -1,8 +1,10 @@
 <?php
 
+use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Auth\HandoffController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\LogoutController;
+use App\Http\Controllers\Auth\ResetPasswordController;
 use App\Http\Controllers\BoardColumnController;
 use App\Http\Controllers\BoardController;
 use App\Http\Controllers\CardCommentController;
@@ -11,10 +13,14 @@ use App\Http\Controllers\Central\FindWorkspacesController;
 use App\Http\Controllers\Central\RegisterController;
 use App\Http\Controllers\Central\SlugAvailabilityController;
 use App\Http\Controllers\Internal\ResolveTenantController;
+use App\Http\Controllers\InvitationController;
+use App\Http\Controllers\InviteController;
 use App\Http\Controllers\MeController;
+use App\Http\Controllers\MemberController;
 use App\Http\Controllers\MoveCardController;
 use App\Http\Controllers\MoveColumnController;
 use App\Http\Controllers\Workspace\PublicWorkspaceController;
+use App\Http\Controllers\WorkspaceController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('internal')->middleware('internal')->group(function () {
@@ -31,10 +37,22 @@ Route::middleware(['internal', 'tenant', 'tenant.active'])->group(function () {
     Route::get('workspace/public', PublicWorkspaceController::class);
     Route::post('auth/login', LoginController::class)->middleware('throttle:login');
     Route::post('auth/handoff', HandoffController::class)->middleware('throttle:handoff');
+    Route::post('auth/forgot-password', ForgotPasswordController::class)->middleware('throttle:forgot-password');
+    Route::post('auth/reset-password', ResetPasswordController::class);
+    Route::get('invites/{token}', [InviteController::class, 'show'])->middleware('throttle:invite-accept');
+    Route::post('invites/{token}/accept', [InviteController::class, 'accept'])->middleware('throttle:invite-accept');
 
     Route::middleware(['auth:sanctum', 'tenant.member'])->group(function () {
         Route::post('auth/logout', LogoutController::class);
         Route::get('me', MeController::class);
+
+        Route::patch('workspace', [WorkspaceController::class, 'update']);
+        Route::get('members', [MemberController::class, 'index']);
+        Route::patch('members/{user}', [MemberController::class, 'update']);
+        Route::delete('members/{user}', [MemberController::class, 'destroy']);
+        Route::get('invitations', [InvitationController::class, 'index']);
+        Route::post('invitations', [InvitationController::class, 'store'])->middleware('throttle:invitations');
+        Route::delete('invitations/{invitation}', [InvitationController::class, 'destroy']);
 
         Route::apiResource('boards', BoardController::class);
 

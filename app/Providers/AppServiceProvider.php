@@ -4,7 +4,9 @@ namespace App\Providers;
 
 use App\Enums\Permission;
 use App\Models\User;
+use App\Support\FrontendUrl;
 use App\Support\Tenancy\TenantQueryGuard;
+use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -42,6 +44,12 @@ class AppServiceProvider extends ServiceProvider
             return $user->currentRole()?->can($permission) ?? false;
         });
 
+        // Sent synchronously during the forgot-password request, so tenant() is set.
+        ResetPassword::createUrlUsing(fn (User $user, string $token) => FrontendUrl::tenant(
+            (string) tenant('slug'),
+            '/reset-password?token='.$token.'&email='.urlencode($user->getEmailForPasswordReset()),
+        ));
+
         $this->configureRateLimiting();
 
         if ($this->app->environment(['local', 'testing'])) {
@@ -58,5 +66,8 @@ class AppServiceProvider extends ServiceProvider
             tenant()?->getTenantKey().'|'.Str::lower((string) $request->input('email')).'|'.$request->ip()
         ));
         RateLimiter::for('handoff', fn (Request $request) => Limit::perMinute(10)->by($request->ip()));
+        RateLimiter::for('forgot-password', fn (Request $request) => Limit::perMinute(3)->by($request->ip()));
+        RateLimiter::for('invite-accept', fn (Request $request) => Limit::perMinute(10)->by($request->ip()));
+        RateLimiter::for('invitations', fn (Request $request) => Limit::perHour(20)->by((string) tenant()?->getTenantKey()));
     }
 }
