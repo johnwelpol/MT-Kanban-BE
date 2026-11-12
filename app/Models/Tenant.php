@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Database\Factories\TenantFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Stancl\Tenancy\Database\Concerns\HasScopedValidationRules;
 use Stancl\Tenancy\Database\Models\Tenant as BaseTenant;
 
@@ -28,6 +29,17 @@ class Tenant extends BaseTenant
     public static function getCustomColumns(): array
     {
         return ['id', 'slug', 'name', 'status', 'created_at', 'updated_at'];
+    }
+
+    /**
+     * @return BelongsToMany<User, $this, Membership>
+     */
+    public function users(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class)
+            ->using(Membership::class)
+            ->withPivot('role')
+            ->withTimestamps();
     }
 
     public function isActive(): bool
