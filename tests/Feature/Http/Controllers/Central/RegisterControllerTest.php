@@ -3,6 +3,7 @@
 namespace Tests\Feature\Http\Controllers\Central;
 
 use App\Enums\Role;
+use App\Models\Board;
 use App\Models\LoginHandoff;
 use App\Models\Membership;
 use App\Models\Tenant;
@@ -50,6 +51,18 @@ class RegisterControllerTest extends TestCase
             'tenant_id' => $tenant->id,
             'code_hash' => hash('sha256', $response->json('data.handoff_code')),
         ]);
+    }
+
+    public function test_registration_creates_the_starter_board(): void
+    {
+        $this->postJson('/api/central/register', $this->payload(), $this->apiHeaders())->assertCreated();
+
+        $board = Board::with('columns')->sole();
+        $this->assertSame('Getting started', $board->name);
+        $this->assertSame(Tenant::where('slug', 'acme')->value('id'), $board->tenant_id);
+        $this->assertSame(['To do', 'In progress', 'Done'], $board->columns->pluck('name')->all());
+        $this->assertSame([0, 1, 2], $board->columns->pluck('position')->all());
+        $this->assertFalse(tenancy()->initialized, 'Registration must not leave tenancy initialized.');
     }
 
     public function test_existing_email_with_correct_password_adds_a_second_workspace(): void
