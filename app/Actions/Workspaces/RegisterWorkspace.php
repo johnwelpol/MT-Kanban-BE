@@ -2,6 +2,7 @@
 
 namespace App\Actions\Workspaces;
 
+use App\Actions\Boards\CreateBoard;
 use App\Enums\Role;
 use App\Models\Tenant;
 use App\Models\User;
@@ -13,7 +14,7 @@ use Illuminate\Validation\ValidationException;
 
 class RegisterWorkspace
 {
-    public function __construct(private LoginHandoffs $handoffs) {}
+    public function __construct(private LoginHandoffs $handoffs, private CreateBoard $createBoard) {}
 
     /**
      * Create a workspace owned by a new or existing user, and a handoff code to sign them in on it.
@@ -27,6 +28,9 @@ class RegisterWorkspace
             $user = $this->resolveOwner($data);
 
             try {
+                /**
+                 * @var Tenant $tenant
+                 */
                 $tenant = Tenant::create([
                     'slug' => $data['workspace_slug'],
                     'name' => $data['workspace_name'],
@@ -38,6 +42,8 @@ class RegisterWorkspace
             }
 
             $tenant->users()->attach($user, ['role' => Role::Owner]);
+
+            $tenant->run(fn () => $this->createBoard->handle($user, 'Getting started'));
 
             return [$tenant, $this->handoffs->create($user, $tenant)];
         });
