@@ -17,10 +17,11 @@ This project has domain-specific skills available in `**/skills/**`. You MUST ac
 
 ## Workflow
 
-1. **Analyze** — activate matching skills, read `.claude/project-overview.md`, select agents
+1. **Analyze** — activate matching skills, read `.claude/project-context.md`, select agents
 2. **Plan** — break work into subtasks, present plan to user
 3. **Execute** — delegate to specialist agents (always prefer plugin-namespaced agents over generic ones)
-4. **Verify** — tests pass, lint clean, conventions followed
+4. **Review** — `code-reviewer` + `security-vulnerability-reviewer` (or platform equivalents) in parallel after implementation
+5. **Verify** — tests pass, lint clean, conventions followed
 
 ## Conventions
 
