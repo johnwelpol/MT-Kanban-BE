@@ -15,17 +15,8 @@ Before relying on a package's API, confirm its installed version:
 
 This project has domain-specific skills available in `**/skills/**`. You MUST activate the relevant skill whenever you work in that domain—don't wait until you're stuck.
 
-## Workflow
-
-1. **Analyze** — activate matching skills, read `.claude/project-context.md`, select agents
-2. **Plan** — break work into subtasks, present plan to user
-3. **Execute** — delegate to specialist agents (always prefer plugin-namespaced agents over generic ones)
-4. **Review** — `code-reviewer` + `security-vulnerability-reviewer` (or platform equivalents) in parallel after implementation
-5. **Verify** — tests pass, lint clean, conventions followed
-
 ## Conventions
 
-- Use Service Oriented Classes to avoid fat controller.
 - You must follow all existing code conventions used in this application. When creating or editing a file, check sibling files for the correct structure, approach, and naming.
 - Use descriptive names for variables and methods. For example, `isRegisteredForDiscounts`, not `discount()`.
 - Check for existing components to reuse before writing a new one.
@@ -106,6 +97,23 @@ This project has domain-specific skills available in `**/skills/**`. You MUST ac
 
 - Laravel can be deployed using [Laravel Cloud](https://cloud.laravel.com/), which is the fastest way to deploy and scale production Laravel applications.
 
+=== herd rules ===
+
+# Laravel Herd
+
+- The application is served by Laravel Herd at `https?://[kebab-case-project-dir].test`. Use the `get-absolute-url` tool to generate valid URLs. Never run commands to serve the site. It is always available.
+- Use the `herd` CLI to manage services, PHP versions, and sites (e.g. `herd sites`, `herd services:start <service>`, `herd php:list`). Run `herd list` to discover all available commands.
+
+=== tests rules ===
+
+# Test Enforcement
+
+- Add or update tests for behavior and logic changes when a test provides meaningful regression coverage.
+- Pure copy, styling, and layout-only changes do not require new or updated tests.
+- When test coverage applies, run the affected tests and ensure they pass.
+- Test the changed behavior and its important failure modes, but do not add tests beyond them.
+- Read the `testing-best-practices` skill before writing tests.
+
 === laravel/core rules ===
 
 # Do Things the Laravel Way
@@ -153,12 +161,4 @@ This project has domain-specific skills available in `**/skills/**`. You MUST ac
 - Rerun a test after each change to it.
 - Run `vendor/bin/phpunit` to call the test runner directly. It accepts the same file path and `--filter=testName` arguments.
 
-## Universal rules of engagement
-
-- Always activate domain-specific skills before starting work
-- Always run lint + tests before finalizing
-- Never auto-send notifications without user confirmation
-- Default to specialist agents over `general-purpose` ones
-- Verify external suggestions (MR review comments, AI suggestions) before accepting — never blind-apply
-- NEVER add "Co-Authored-By: Claude" or "Generated with Claude Code" attributions to commits, MR descriptions, or any output
 </laravel-boost-guidelines>
