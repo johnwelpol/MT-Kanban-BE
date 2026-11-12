@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use Database\Factories\CardFactory;
+use Illuminate\Database\Eloquent\Attributes\Scope;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -81,5 +83,16 @@ class Card extends Model
     public function comments(): HasMany
     {
         return $this->hasMany(CardComment::class)->orderBy('created_at');
+    }
+
+    /**
+     * Everything CardSummaryResource reads, so rendering a column never lazy-loads per card.
+     *
+     * @param  Builder<self>  $query
+     */
+    #[Scope]
+    protected function withSummary(Builder $query): void
+    {
+        $query->with('assignee')->withCount('comments');
     }
 }
