@@ -10,7 +10,7 @@ use PHPUnit\Framework\TestCase;
 class RoleTest extends TestCase
 {
     /**
-     * The 00-overview §5 matrix, written out independently of Role::permissions().
+     * The matrix, written out independently of Role::permissions().
      */
     private const MATRIX = [
         'workspace.update' => ['owner' => true, 'admin' => true, 'member' => false, 'viewer' => false],
