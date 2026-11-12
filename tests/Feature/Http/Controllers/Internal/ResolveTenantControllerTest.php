@@ -11,15 +11,6 @@ class ResolveTenantControllerTest extends TestCase
 {
     use RefreshDatabase;
 
-    private const INTERNAL_KEY = 'test-internal-key';
-
-    protected function setUp(): void
-    {
-        parent::setUp();
-
-        config(['frontend.internal_key' => self::INTERNAL_KEY]);
-    }
-
     public function test_returns_workspace_for_active_slug(): void
     {
         $tenant = Tenant::factory()->create();
